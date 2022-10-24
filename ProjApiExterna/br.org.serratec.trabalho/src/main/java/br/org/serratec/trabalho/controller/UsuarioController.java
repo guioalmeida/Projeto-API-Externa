@@ -71,7 +71,26 @@ public class UsuarioController {
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<Usuario> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
+	public ResponseEntity<Usuario> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) throws Exception{
+		URL url=new URL ("https://viacep.com.br/ws/"+usuario.getCep()+"/json/");
+		URLConnection connection = url.openConnection();
+		InputStream is = connection.getInputStream();
+		BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+		
+		String cep = "";
+		StringBuilder jsonCep=new StringBuilder();
+		while((cep=br.readLine())!=null) {
+			jsonCep.append(cep);	
+		}
+		
+		Usuario userAux = new Gson().fromJson(jsonCep.toString(), Usuario.class);
+		usuario.setCep(userAux.getCep());
+		usuario.setLogradouro(userAux.getLogradouro());
+		usuario.setComplemento(userAux.getComplemento());
+		usuario.setBairro(userAux.getBairro());
+		usuario.setLocalidade(userAux.getLocalidade());
+		usuario.setUf(userAux.getUf());
+		
 		return ResponseEntity.ok(servico.atualizar(id, usuario)); 
 	}
 	
