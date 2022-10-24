@@ -1,0 +1,5 @@
+package br.org.serratec.trabalho.repository;
+
+public class UsuarioRepository {
+
+}

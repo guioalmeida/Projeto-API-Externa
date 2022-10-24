@@ -1,0 +1,64 @@
+package br.org.serratec.trabalho.service;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import br.org.serratec.trabalho.exception.ResourceBadRequestException;
+import br.org.serratec.trabalho.exception.ResourceNotFoundException;
+import br.org.serratec.trabalho.model.Usuario;
+import br.org.serratec.trabalho.repository.UsuarioRepository;
+
+@Service
+public class UsuarioService {
+	
+	@Autowired
+	private UsuarioRepository repositorio;
+	
+	public List<Usuario> obterTodos(){
+		return repositorio.findAll();
+	}
+	
+	public Optional<Usuario>obterPorId(Long id){
+		Optional<Usuario> optUsuario = repositorio.findById(id);
+		
+		if(optUsuario.isEmpty()) {
+			throw new ResourceNotFoundException("Não foi possivel encontrar o usuário com id " + id);
+		}
+		return optUsuario;
+	}
+	
+	public Usuario cadastrar(Usuario usuario) {
+		
+		validarModelo(usuario);
+		
+		usuario.setId(null);
+		return repositorio.save(usuario);
+	}
+	
+	public Usuario atualizar(long id, Usuario usuario) {
+		
+		obterPorId(id);
+		
+		validarModelo(usuario);
+		
+		usuario.setId(id);
+		return repositorio.save(usuario);
+	}
+	
+	public void deletar(Long id) {
+		obterPorId(id);
+		repositorio.deleteById(id);
+	}
+	
+	private void validarModelo(Usuario usuario) {
+		if(usuario.getNome()== null) {
+			throw new ResourceBadRequestException("O nome deve ser informado");
+		}else if (usuario.getCep()== null) {
+			throw new ResourceBadRequestException("O Cep deve ser informado");
+		}
+	}
+
+}
